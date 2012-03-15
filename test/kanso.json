@@ -1,0 +1,10 @@
+{
+    "name": "dashboard-core-test",
+    "version": "0.0.1",
+    "description": "A test suite for the dashboard-core",
+    "attachments": "spec",
+    "dependencies": {
+        "attachments": null,
+        "dashboard-core" : null
+    }
+}
