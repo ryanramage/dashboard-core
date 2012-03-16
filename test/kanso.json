@@ -10,6 +10,7 @@
         "dashboard-core" : null,
         "modules": null,
         "properties": null,
-        "db" : null
+        "db" : null,
+        "nodeunit" : null
     }
 }

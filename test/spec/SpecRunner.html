@@ -2,34 +2,23 @@
   "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>Jasmine Test Runner</title>
-  <link rel="stylesheet" type="text/css" href="lib/jasmine-1.0.2/jasmine.css">
+  <title>Nodeunit Test Runner</title>
 
-  <!-- Workaround to make Sinon.js timers work in Firefox and Chrome -->
-  <!-- https://github.com/cjohansen/Sinon.JS/issues/30 -->
-  <script type="text/javascript">
-    //window.mozRequestAnimationFrame = window.webkitRequestAnimationFrame = false;
-  </script>
-
+  <script src="suite1.js"></script>
   <script type="text/javascript" src="../modules.js"></script>
-  <script type="text/javascript">
-      var _ = require('jquery');
-  </script>
-  <script type="text/javascript" src="lib/jasmine-1.0.2/jasmine.js"></script>
-  <script type="text/javascript" src="lib/jasmine-1.0.2/jasmine-html.js"></script>
-  <script type="text/javascript" src="lib/jasmine-jquery.js"></script>
-  <!-- include spec files here... -->
-  <script type="text/javascript" src="app_test.js"></script>
-
-
-
 </head>
 <body>
+<body>
+  <h1 id="nodeunit-header">Example Test Suite</h1>
+  <script>
+    var nodeunit = require('nodeunit');
 
-<script type="text/javascript">
-  jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-  jasmine.getEnv().execute();
-</script>
+    nodeunit.run({
+      'Suite One': suite1
+    });
+  </script>
+</body>
+
 
 </body>
 </html>

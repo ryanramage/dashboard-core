@@ -51,27 +51,51 @@ page.open(phantom.args[0], function(status){
         console.log("Unable to access network");
         phantom.exit();
     } else {
+
+
+
         waitFor(function(){
             return page.evaluate(function(){
-                if (document.body.querySelector('.runner .description')) {
+                var el = document.getElementById('nodeunit-testresult');
+                if (el && el.innerText.match('completed')) {
                     return true;
                 }
                 return false;
             });
         }, function(){
-            page.evaluate(function(){
-                console.log(document.body.querySelector('.description').innerText);
-                list = document.body.querySelectorAll('div.jasmine_reporter > div.suite.failed');
-                for (i = 0; i < list.length; ++i) {
-                    el = list[i];
-                    desc = el.querySelectorAll('.description');
-                    console.log('');
-                    for (j = 0; j < desc.length; ++j) {
-                        console.log(desc[j].innerText);
+
+            var failed = page.evaluate(function(){
+                var failed = false;
+                var li = document.getElementsByTagName('li');
+                for (var i = 0; i < li.length; i++) {
+                    var status = li[i].getAttribute('class');
+                    var info = li[i].getElementsByTagName('strong');
+                    var pass = status == "pass"
+                    var symbol = '✔';
+                    if (!pass) {
+                        symbol = '✘';
+                        failed = true;
+                    }
+                    if (info && info[0]) {
+                        // it is a parent test
+                        console.log(symbol + ' ' + info[0].innerText);
+                    } else {
+                        // it is an assertion entry
+                        if (!pass) {
+                            var pre = li[i].getElementsByTagName('pre');
+                            console.log('   '+ symbol +' ' + pre[0].innerText);
+                        }
                     }
                 }
+
+                var el = document.getElementById('nodeunit-testresult');
+                console.log('\n' + el.innerText);
+                return failed;
+
             });
-            phantom.exit();
+            var returnVal = 0;
+            if (failed > 0) returnVal = 1;
+            phantom.exit(returnVal);
         });
     }
 });
