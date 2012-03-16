@@ -8,7 +8,7 @@ describe("Rewrites", function() {
       var completed = false;
       runs(function(){
           $.ajax({
-              url :  '../_info2',
+              url :  '../_info',
               dataType : 'json',
               jsonp : true,
               success : function(remote_data) {
@@ -22,7 +22,7 @@ describe("Rewrites", function() {
               }
           });
       });
-      waits(500);
+      waits(1500);
       runs(function(){
           expect(completed).toBeTruthy();
       });
