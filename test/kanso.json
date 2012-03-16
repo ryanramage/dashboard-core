@@ -9,6 +9,7 @@
         "attachments": null,
         "dashboard-core" : null,
         "modules": null,
-        "properties": null
+        "properties": null,
+        "db" : null
     }
 }
