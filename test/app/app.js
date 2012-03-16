@@ -20,4 +20,9 @@ exports.updates = {
     modifyAppRewrites : dashboard_updates.modifyAppRewrites
 }
 
-exports.rewrites = dashboard_rewrites.getNeededRewrties('dashboard-core-test');
+var base_rewrites = dashboard_rewrites.getNeededRewrties('dashboard-core-test');
+
+base_rewrites.push({from: 'spec/*', to : 'spec/*'});
+base_rewrites.push({from: '/modules.js', to: 'modules.js' });
+
+exports.rewrites = base_rewrites;
