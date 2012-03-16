@@ -22,7 +22,8 @@ exports.updates = {
 
 var base_rewrites = dashboard_rewrites.getNeededRewrties('dashboard-core-test');
 
-base_rewrites.push({from: 'spec/*', to : 'spec/*'});
+
 base_rewrites.push({from: '/modules.js', to: 'modules.js' });
+base_rewrites.push({from: '*', to : 'spec/*'});
 
 exports.rewrites = base_rewrites;

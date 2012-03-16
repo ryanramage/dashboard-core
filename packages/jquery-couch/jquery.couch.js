@@ -34,10 +34,19 @@
  *  }
  *]</code></pre>
  */
+var jQuery = require('jquery');
+
 (function($) {
 
   $.couch = $.couch || {};
   /** @lends $.couch */
+
+  if (typeof exports !== 'undefined') {
+      if (typeof module !== 'undefined' && module.exports) {
+        module.exports =  $.couch;
+      }
+      exports.couch = $.couch;
+  }
 
   /**
    * @private
