@@ -92,13 +92,17 @@ function getTestFails(page) {
 }
 
 function isNodeUnitPage(page) {
-    return page.evaluate(function() {
+    var isNodeUnit = page.evaluate(function() {
         var el = document.getElementById('nodeunit-header');
         if (!el) {
-            console.log('not a nodeunit page');
-            phantom.exit(1)
+            return false;
         }
+        return true;
     });
+    if (!isNodeUnit) {
+        console.log('not a nodeunit page');
+        phantom.exit(1)
+    }
 }
 
 
