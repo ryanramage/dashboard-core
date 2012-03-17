@@ -17,7 +17,7 @@ after_script:
   # setup and run tests
   - sh -e /etc/init.d/xvfb start
   # need to setup couch with some stuff
-  - curl -X PUT http://localhost:5984/_config/httpd/secure_rewrites -H 'Content-Type: application/json' -d 'false'
+  - test/setup_couch.sh
   - "export DISPLAY=:99.0; test/run_headless_tests.sh http://localhost:5984/myapp_test"
 
 
