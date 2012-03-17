@@ -25,6 +25,7 @@ this.core_test = {
     },
 
     'Should list all installed apps': function (test) {
+        test.expect(1);
         core.getInstalledApps(function(err, apps) {
             if (err) throw err;
             test.ok(apps.length > 0, 'no apps found');

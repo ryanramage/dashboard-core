@@ -5,6 +5,7 @@ var db = require('db').current();
 
 this.rewrites = {
     '_info should returns jsonp with dashboard info': function (test) {
+        test.expect(2);
         $.ajax({
           url :  '_info',
           dataType : 'json',
