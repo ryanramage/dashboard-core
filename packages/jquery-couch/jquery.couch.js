@@ -707,7 +707,17 @@ var jQuery = require('jquery');
             "The document could not be deleted"
           );
         },
-
+        headDoc : function(docId, options, ajaxOptions) {
+            ajax({
+                type: "HEAD",
+                url: this.uri +
+                     encodeDocId(docId)
+              },
+              options,
+              "The document info could not be found",
+              ajaxOptions
+            );
+        },
         /**
          * Remove a set of documents
          * @see <a href="http://techzone.couchbase.com/sites/default/files/

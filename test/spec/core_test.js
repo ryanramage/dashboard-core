@@ -75,6 +75,93 @@ core_test.list_markets = {
     }
 }
 
+core_test.garden_app_details = function(test) {
+    var test_garden_app = 'http://garden.iriscouch.com/garden/_design/garden/_rewrite/details/wiki';
+    core.getGardenAppDetails(test_garden_app, function(err, remote_app_details) {
+       if (err) throw err;
+       test.equal(remote_app_details.kanso.config.name, 'wiki', 'Wiki returned');
+       test.done();
+    });
+}
+
+var null_update_function = function(status, progress, complete) {}
+
+core_test.install_wiki = {
+    setUp : function(callback) {
+        try {
+            require('db').deleteDatabase('wikiwikiwiki', function(err, resp) {
+                callback();
+            });
+        } catch(e){}
+    },
+    'a complete install of an app': function (test) {
+        test.expect(2);
+        var test_garden_app = 'http://garden.iriscouch.com/garden/_design/garden/_rewrite/details/wiki';
+        core.getGardenAppDetails(test_garden_app, function(err, remote_app_details) {
+           if (err) throw err;
+           core.install_app(remote_app_details, 'wikiwikiwiki', null_update_function, function(err, markets) {
+               if (err)  test.equals(false, true, err);
+               var installed_db = require('db').use('wikiwikiwiki');
+               installed_db.allDocs(function(err, res) {
+                   test.equals(res.rows.length, 1, "only one design doc");
+                   test.equals(res.rows[0].id, '_design/wiki', 'correctly named');
+                   test.done();
+               });
+           });
+
+        });
+    },
+    tearDown : function(callback) {
+        try {
+            require('db').deleteDatabase('wikiwikiwiki', function(err, resp) {
+                callback();
+            });
+        } catch(e){}
+    }
+}
+
+core_test.test_incr_app_name = function(test) {
+
+    var db = "test";
+    var next = core.incr_app_name(db);
+    test.equal(next, "test_1");
+
+    db = "test_1";
+    next = core.incr_app_name(db);
+    test.equal(next, "test_2");
+
+    db = "test_21";
+    next = core.incr_app_name(db);
+    test.equal(next, "test_22");
+
+    db = "test_cool";
+    next = core.incr_app_name(db);
+    test.equal(next, "test_cool_1");
+
+
+    db = "test_cool_10";
+    next = core.incr_app_name(db);
+    test.equal(next, "test_cool_11");
+
+    test.done();
+}
+
+
+
+core_test.find_next_db = function(test) {
+    var name = "test";
+    var current_dbs = ["_users", "alpha"];
+    var next = core.find_next_db_name(name, current_dbs);
+    test.equal(next, "test");
+
+    name = "test";
+    current_dbs = ["_users", "alpha", "test"];
+    next = core.find_next_db_name(name, current_dbs);
+    test.equal(next, "test_1");
+
+
+    test.done();
+}
 
 
 

@@ -55,7 +55,7 @@ function waitForNoResultIncrease(current, page, callback) {
 
         var newCount = currentTestCount(page);
         waitForNoResultIncrease(newCount, page, callback);
-    }, 3000);
+    }, 30000);
 }
 
 function getTestFails(page) {
