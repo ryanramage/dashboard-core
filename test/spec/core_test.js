@@ -3,6 +3,7 @@ var db = require('db').current();
 
 
 core.dashboard_db_name = guessCurrent().db;
+console.log('db: ' + core.dashboard_db_name );
 core.dashboard_ddoc_name = 'dashboard-core-test';
 
 this.core_test = {

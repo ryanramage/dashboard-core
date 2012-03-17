@@ -47,6 +47,8 @@ function waitForNoResultIncrease(current, page, callback) {
 
         var incCount = currentTestCount(page);
         if (incCount > current) return true;
+        console.log(current);
+
         return false;
 
     }, function(err) {
