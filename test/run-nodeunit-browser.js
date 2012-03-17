@@ -96,6 +96,7 @@ if (phantom.args.length === 0 || phantom.args.length > 2) {
     console.log('Usage: run-nodeunit-browser.js URL');
     phantom.exit();
 }
+console.log(phantom.args[0]);
 
 var page = require('webpage').create();
 
@@ -109,6 +110,7 @@ page.open(phantom.args[0], function(status){
         console.log("Unable to access network");
         phantom.exit();
     } else {
+        console.log('waiting for results');
         waitForNoResultIncrease(0, page, function() {
             var returnVal = getTestFails(page);
             phantom.exit(returnVal);
