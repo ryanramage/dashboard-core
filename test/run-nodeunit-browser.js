@@ -1,16 +1,5 @@
-/**
- * Wait until the test condition is true or a timeout occurs. Useful for waiting
- * on a server response or for a ui change (fadeIn, etc.) to occur.
- *
- * @param testFx javascript condition that evaluates to a boolean,
- * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
- * as a callback function.
- * @param onReady what to do when testFx condition is fulfilled,
- * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
- * as a callback function.
- * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
- */
-function waitFor(testFx, onReady, timeOutMillis) {
+
+function waitFor(testFx, callback, timeOutMillis) {
     var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3001, //< Default Max Timeout is 3s
         start = new Date().getTime(),
         condition = false,
@@ -21,12 +10,9 @@ function waitFor(testFx, onReady, timeOutMillis) {
             } else {
                 if(!condition) {
                     // If condition still not fulfilled (timeout but condition is 'false')
-                    console.log("'waitFor()' timeout");
-                    phantom.exit(1);
+                    callback('timeout')
                 } else {
-                    // Condition fulfilled (timeout and/or condition is 'true')
-                    console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
-                    typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
+                    callback(null);
                     clearInterval(interval); //< Stop this interval
                 }
             }
@@ -34,8 +20,80 @@ function waitFor(testFx, onReady, timeOutMillis) {
 };
 
 
+function currentTestCount(page) {
+    try {
+        return page.evaluate(function(){
+            return document.getElementsByTagName('li').length;
+        });
+    } catch(e) {
+        return 0;
+    }
+}
+
+function testComplete(page) {
+    return page.evaluate(function(){
+        var el = document.getElementById('nodeunit-testresult');
+        if (el && el.innerText.match('completed')) {
+            return true;
+        }
+        return false;
+    });
+}
+
+function waitForNoResultIncrease(current, page, callback) {
+    waitFor(function() {
+
+        if (testComplete(page)) return true;
+
+        var incCount = currentTestCount(page);
+        if (incCount > current) return true;
+        return false;
+
+    }, function(err) {
+        if (err) return callback(null);
+        if (testComplete(page)) return callback(null);
+
+        var newCount = currentTestCount(page);
+        waitForNoResultIncrease(newCount, page, callback);
+    }, 3000);
+}
+
+function getTestFails(page) {
+    var failed = page.evaluate(function(){
+        var failed = false;
+        var li = document.getElementsByTagName('li');
+        for (var i = 0; i < li.length; i++) {
+            var status = li[i].getAttribute('class');
+            var info = li[i].getElementsByTagName('strong');
+            var pass = status == "pass"
+            var symbol = '✔';
+            if (!pass) {
+                symbol = '✘';
+                failed = true;
+            }
+            if (info && info[0]) {
+                // it is a parent test
+                console.log(symbol + ' ' + info[0].innerText);
+            } else {
+                // it is an assertion entry
+                if (!pass) {
+                    var pre = li[i].getElementsByTagName('pre');
+                    console.log('   '+ symbol +' ' + pre[0].innerText);
+                }
+            }
+        }
+
+        var el = document.getElementById('nodeunit-testresult');
+        console.log('\n' + el.innerText);
+        return failed;
+    });
+    var returnVal = 0;
+    if (failed > 0) returnVal = 1;
+}
+
+
 if (phantom.args.length === 0 || phantom.args.length > 2) {
-    console.log('Usage: run-jasmine.js URL');
+    console.log('Usage: run-nodeunit-browser.js URL');
     phantom.exit();
 }
 
@@ -51,51 +109,12 @@ page.open(phantom.args[0], function(status){
         console.log("Unable to access network");
         phantom.exit();
     } else {
-
-
-
-        waitFor(function(){
-            return page.evaluate(function(){
-                var el = document.getElementById('nodeunit-testresult');
-                if (el && el.innerText.match('completed')) {
-                    return true;
-                }
-                return false;
-            });
-        }, function(){
-
-            var failed = page.evaluate(function(){
-                var failed = false;
-                var li = document.getElementsByTagName('li');
-                for (var i = 0; i < li.length; i++) {
-                    var status = li[i].getAttribute('class');
-                    var info = li[i].getElementsByTagName('strong');
-                    var pass = status == "pass"
-                    var symbol = '✔';
-                    if (!pass) {
-                        symbol = '✘';
-                        failed = true;
-                    }
-                    if (info && info[0]) {
-                        // it is a parent test
-                        console.log(symbol + ' ' + info[0].innerText);
-                    } else {
-                        // it is an assertion entry
-                        if (!pass) {
-                            var pre = li[i].getElementsByTagName('pre');
-                            console.log('   '+ symbol +' ' + pre[0].innerText);
-                        }
-                    }
-                }
-
-                var el = document.getElementById('nodeunit-testresult');
-                console.log('\n' + el.innerText);
-                return failed;
-
-            });
-            var returnVal = 0;
-            if (failed > 0) returnVal = 1;
+        waitForNoResultIncrease(0, page, function() {
+            var returnVal = getTestFails(page);
             phantom.exit(returnVal);
         });
+
+
+
     }
 });
