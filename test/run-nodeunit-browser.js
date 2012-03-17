@@ -47,8 +47,6 @@ function waitForNoResultIncrease(current, page, callback) {
 
         var incCount = currentTestCount(page);
         if (incCount > current) return true;
-        console.log(current);
-
         return false;
 
     }, function(err) {
@@ -93,6 +91,16 @@ function getTestFails(page) {
     if (failed > 0) returnVal = 1;
 }
 
+function isNodeUnitPage(page) {
+    return page.evaluate(function() {
+        var el = document.getElementById('nodeunit-header');
+        if (!el) {
+            console.log('not a nodeunit page');
+            phantom.exit(1)
+        }
+    });
+}
+
 
 if (phantom.args.length === 0 || phantom.args.length > 2) {
     console.log('Usage: run-nodeunit-browser.js URL');
@@ -112,7 +120,10 @@ page.open(phantom.args[0], function(status){
         console.log("Unable to access network");
         phantom.exit();
     } else {
-        console.log('waiting for results');
+
+        isNodeUnitPage(page);
+
+        console.log('\nwaiting for results');
         waitForNoResultIncrease(0, page, function() {
             var returnVal = getTestFails(page);
             phantom.exit(returnVal);
