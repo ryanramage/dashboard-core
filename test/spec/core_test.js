@@ -86,37 +86,48 @@ core_test.garden_app_details = function(test) {
 
 var null_update_function = function(status, progress, complete) {}
 
+function deleteVhostedDB(dbName, callback) {
+    try {
+        var db_url = core.hostRoot(window.location) + dbName + '/_db' ;
+        db.request({
+            type: 'DELETE',
+            url: db_url
+        }, function(err){
+            callback();
+        });
+    } catch(e){}
+}
+
+
+
 core_test.install_wiki = {
     setUp : function(callback) {
-        try {
-            require('db').deleteDatabase('wikiwikiwiki', function(err, resp) {
-                callback();
-            });
-        } catch(e){}
+        deleteVhostedDB('wikiwikiwiki', callback);
     },
     'a complete install of an app': function (test) {
-        test.expect(2);
+        test.expect(6);
         var test_garden_app = 'http://garden.iriscouch.com/garden/_design/garden/_rewrite/details/wiki';
         core.getGardenAppDetails(test_garden_app, function(err, remote_app_details) {
-           if (err) throw err;
-           core.install_app(remote_app_details, 'wikiwikiwiki', null_update_function, function(err, markets) {
-               if (err)  test.equals(false, true, err);
-               var installed_db = require('db').use('wikiwikiwiki');
+           test.ifError(err);
+           core.install_app(remote_app_details, 'wikiwikiwiki', null_update_function, function(err, install_doc) {
+               test.ifError(err);
+               test.equal(install_doc.doc_id, 'wiki', 'install doc correct name');
+               test.equal(install_doc.installed.db, 'wikiwikiwiki', 'recorded correct db');
+
+
+               var installed_db = require('db').use('wikiwikiwiki/_db');
                installed_db.allDocs(function(err, res) {
                    test.equals(res.rows.length, 1, "only one design doc");
                    test.equals(res.rows[0].id, '_design/wiki', 'correctly named');
                    test.done();
                });
+
            });
 
         });
     },
     tearDown : function(callback) {
-        try {
-            require('db').deleteDatabase('wikiwikiwiki', function(err, resp) {
-                callback();
-            });
-        } catch(e){}
+        deleteVhostedDB('wikiwikiwiki', callback);
     }
 }
 
