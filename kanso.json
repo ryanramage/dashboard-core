@@ -16,6 +16,7 @@
         "jsonp": null,
         "semver" : null,
         "git-info" : null,
-        "jquery-couch" : null
+        "jquery-couch" : null,
+        "flattr" : null
     }
 }
